@@ -1,4 +1,6 @@
 import { WebSocketServer } from "ws";
+import dotenv from "dotenv";
+dotenv.config()
 import { client } from "@repo/db/client";
 
 const server = new WebSocketServer({
