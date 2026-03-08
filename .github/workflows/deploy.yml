@@ -1,0 +1,27 @@
+name: Deploy remotely using ssh
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    name: Deploying everything
+
+    steps:
+      - name: Deploy via SSH
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          chmod 600 ssh_key
+
+          ssh -o StrictHostKeyChecking=no -i ssh_key ubuntu@13.51.255.55 << 'EOF'
+            cd ~/deployment
+            git pull origin main
+            pnpm install
+            pnpm run build
+            pm2 restart ws
+            pm2 restart backend
+            pm2 restart fe
+          EOF
