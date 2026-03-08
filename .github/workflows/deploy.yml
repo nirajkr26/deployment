@@ -8,7 +8,6 @@ on:
 jobs:
   redeploy:
     runs-on: ubuntu-latest
-    name: Deploying everything
 
     steps:
       - name: Deploy via SSH
@@ -17,11 +16,18 @@ jobs:
           chmod 600 ssh_key
 
           ssh -o StrictHostKeyChecking=no -i ssh_key ubuntu@13.51.255.55 << 'EOF'
+
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
             cd ~/deployment
             git pull origin main
+
             pnpm install
             pnpm run build
-            pm2 restart ws
-            pm2 restart backend
-            pm2 restart fe
+
+            pm2 restart ws --update-env
+            pm2 restart backend --update-env
+            pm2 restart fe --update-env
+
           EOF
